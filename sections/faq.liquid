@@ -1,0 +1,277 @@
+  {{ 'faq.css' | asset_url | stylesheet_tag }}
+<div class="faq___wrapper">
+<div class="page-width">
+  <div class="master-box">  
+  <div class="faq-header">
+    <h4 class="subtitle">Frequently Asked Questions</h4>
+    <div class="filter-search">
+      <input type="text" id="myInput" onkeyup="searchFunction()" placeholder="Search">
+       {% render 'search-svg' %}
+    </div>  
+  </div>
+ 
+  <div class="main_faq_wrapper">
+  <div class="main_faq_inner">
+     <div id="faq-container">
+        <button class="btn" onclick="filterSelection('all')">All</button>
+        {%- for block in section.blocks -%}
+          {% if block.type == 'separator' %}
+             <button class="btn" onclick="filterSelection('{{- block.settings.title | handle -}}')">  {{- block.settings.title | escape -}}</button>
+          {% endif %}  
+        {% endfor %}
+      </div>
+  <ul class="faq_wrappers" id="faq_wrappers">
+     {%- for block in section.blocks -%}
+        {% if block.type == 'separator' %}
+          {% assign cat_type = block.settings.title | handle %}
+        {% endif %}  
+          {% if block.type == 'question' %}
+          {% if block.settings.title != blank or block.settings.answer != blank%}  
+            <li class="filterDiv {{ cat_type }}">
+            <span class="accordion-thumb">{{ block.settings.title | escape }}</span>
+              <div class="accordion-panel">{{ block.settings.answer }}</div>
+          </li>
+      {% endif %}
+      {% endif %}   
+     {% endfor %}
+  </ul>
+    <div class="not_found_wrapper">
+      <div class="not_found-item">
+        {% render 'any-matches-svg' %}
+        <h3>Sorry, we couldn’t find any matches for <span class="search_team"></span></h3>
+        <p>Please try searching with another term</p>
+      </div>
+    </div>
+  </div>
+   
+    <div class="suport__wrapper">
+      <div class="suport_wrapper">
+      <div class="support-item">
+         {% if section.settings.title != blank %}
+        <h2>{{ section.settings.title }}</h2>
+         {% endif %}  
+        {% if section.settings.text != blank %}
+        {{ section.settings.text }}
+        {% endif %}
+          {% if section.settings.btn_text != blank %}
+        <div class="chat_wrapper">
+          <a href="{{ section.settings.url}}">{{ section.settings.btn_text}}</a>
+          {% render 'msg-svg' %}
+        </div>
+          {% endif %}  
+      {% if section.settings.inline-richtext != blank %}
+        <p class="contact_via">{{ section.settings.inline-richtext }}</p>
+        {% endif %}
+        <div class="contact_wrapper">
+          {% render 'contact-svg' %}
+          {% if section.settings.number != blank %}
+          <a href="#">{{ section.settings.number }}</a>
+               {% endif %}
+        </div>
+        <div class="mail_wrapper">
+          {% render 'mail-svg' %}
+        {% if section.settings.email != blank %}
+          <a href="#">{{ section.settings.email }}</a>
+        {% endif %}
+        </div>
+      </div>
+    </div>
+      <div class="support_button_wrapper">
+        {% if section.settings.btn_text1 != blank %}
+      <a href="#" class="support_button">{{ section.settings.btn_text1 }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+<script>
+function searchFunction() {
+    var input, filter, ul, li, s, p, i, txtValue;
+    input = document.getElementById('myInput');
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("faq_wrappers");
+    li = ul.getElementsByTagName('li');
+    let hiddenCount = 0;
+
+    for (i = 0; i < li.length; i++) {
+        p = li[i].getElementsByTagName("div")[0];
+        s = li[i].getElementsByTagName("span")[0];
+        txtValue = "";
+
+        if (s) {
+            txtValue += s.textContent || s.innerText;
+        }
+        if (p) {
+            txtValue += " " + (p.textContent || p.innerText);
+        }
+
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+            hiddenCount++;
+        }
+    }
+
+    if (hiddenCount === li.length) {
+        document.querySelector('.faq___wrapper .not_found_wrapper').style.display = 'block';
+        document.querySelector('.search_team').textContent = input.value;
+    } else {
+        document.querySelector('.faq___wrapper .not_found_wrapper').style.display = 'none';
+    }
+
+    console.log("Number of hidden elements:", hiddenCount);
+}
+  
+
+filterSelection("all")
+function filterSelection(c) {
+  var x, i;
+  x = document.getElementsByClassName("filterDiv");
+  if (c == "all") c = "";
+  // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
+  for (i = 0; i < x.length; i++) {
+    faqRemoveClass(x[i], "show");
+    if (x[i].className.indexOf(c) > -1) faqAddClass(x[i], "show");
+  }
+}
+
+// Show filtered elements
+function faqAddClass(element, name) {
+  var i, arr1, arr2;
+  arr1 = element.className.split(" ");
+  arr2 = name.split(" ");
+  for (i = 0; i < arr2.length; i++) {
+    if (arr1.indexOf(arr2[i]) == -1) {
+      element.className += " " + arr2[i];
+    }
+  }
+}
+
+// Hide elements that are not selected
+function faqRemoveClass(element, name) {
+  var i, arr1, arr2;
+  arr1 = element.className.split(" ");
+  arr2 = name.split(" ");
+  for (i = 0; i < arr2.length; i++) {
+    while (arr1.indexOf(arr2[i]) > -1) {
+      arr1.splice(arr1.indexOf(arr2[i]), 1); 
+    }
+  }
+  element.className = arr1.join(" ");
+}
+
+var btnContainer = document.getElementById("faq-container");
+var buttons = btnContainer.querySelectorAll(".btn");
+buttons.forEach(button => {
+                button.classList.remove("active");
+                button.addEventListener("click", function() {
+                    buttons.forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
+                });
+});
+
+
+// Accordion Function
+$(function() {
+	// (Optional) Active an item if it has the class "is-active"	
+	$(".faq_wrappers > .filterDiv.is-active").children(".accordion-panel").slideDown();
+	
+	$(".faq_wrappers > .filterDiv > span").click(function() {
+    //event.preventDefault();
+		// Cancel the siblings
+		$(this).closest('li').siblings(".filterDiv").removeClass("is-active").children(".accordion-panel").slideUp();
+		// Toggle the item
+		$(this).closest('li').toggleClass("is-active").children(".accordion-panel").slideToggle("ease-out");
+	});
+});
+</script>
+{% schema %}
+{
+  "name": "FAQ",
+  "presets": [
+    {
+      "name": "Faq"
+    }
+  ],
+  "settings": [
+    {
+    "type": "text",
+      "id": "title",
+      "label": "Title"
+  },
+    {
+    "type": "richtext",
+      "id": "text",
+      "label": "Text"
+  },
+  {
+    "type": "text",
+      "id": "btn_text",
+      "label": "Link Text"
+  },
+    {
+    "type": "url",
+      "id": "url",
+      "label": "Link"
+  },
+    {
+    "type": "inline_richtext",
+      "id": "inline-richtext",
+      "label": "Richtext"
+  },
+  {
+    "type": "text",
+      "id": "number",
+      "label": "Phone Number"
+  },
+    {
+    "type": "text",
+      "id": "email",
+      "label": "Email"
+  },
+    {
+    "type": "text",
+      "id": "btn_text1",
+      "label": "Btn Text"
+  },
+    {
+    "type": "text",
+      "id": "btn_url1",
+      "label": "Btn Url"
+  }
+  ],
+  "blocks": [
+    {
+      "type": "separator",
+      "name": "Section separator",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Default"
+        }
+      ]
+    },
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
